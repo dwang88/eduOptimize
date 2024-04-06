@@ -1,41 +1,37 @@
 "use client";
 
 import { useState } from 'react';
-import dynamic from 'next/dynamic';
-const { createWorker } = dynamic(() => import('tesseract.js'), { ssr: false });
 
 export default function VideoTranscriptionPage() {
   const [transcript, setTranscript] = useState('');
 
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    
-    if (!file) return;
-    
+  const handleMicrophoneInput = () => {
+    const recognition = new window.webkitSpeechRecognition();
 
-    const worker = createWorker();
-    await worker.load();
-    await worker.loadLanguage('eng');
-    await worker.initialize('eng');
-    const { data: { text } } = await worker.recognize(file);
-    setTranscript(text);
+    recognition.lang = 'en-US';
 
-    await worker.terminate();
+    recognition.onresult = (event) => {
+      const newTranscript = event.results[0][0].transcript;
+      setTranscript(prevTranscript => prevTranscript + '<br>' + newTranscript);
+    };
+
+    recognition.start();
   };
 
   return (
     <>
-    <div>
-      <h1>Upload a video</h1>
-    </div><div>
-        <input type="file" accept="video/*" onChange={handleFileUpload} />
+      <div>
+        <h1>Real Time Audio Input To Text</h1>
+      </div>
+      <div>
+        <button onClick={handleMicrophoneInput}>Record</button>
+        <h2>Transcript:</h2>
         {transcript && (
           <div>
-            <h2>Transcript</h2>
-            <p>{transcript}</p>
+            <p dangerouslySetInnerHTML={{ __html: transcript }}></p>
           </div>
         )}
       </div>
-      </>
+    </>
   );
 }
