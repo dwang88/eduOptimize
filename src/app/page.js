@@ -8,10 +8,12 @@ export default function VideoTranscriptionPage() {
   const [searchWord, setSearchWord] = useState('');
   const [foundWords, setFoundWords] = useState([]);
   const [selectedTimestamp, setSelectedTimestamp] = useState(null);
+  const recognitionRef = useRef(null); // Reference for recognition object
   const transcriptRef = useRef(null);
 
   const handleMicrophoneInput = () => {
     const recognition = new window.webkitSpeechRecognition();
+    recognitionRef.current = recognition; // Save recognition object in ref for access outside this function
 
     recognition.lang = 'en-US';
     recognition.continuous = true;
@@ -29,6 +31,12 @@ export default function VideoTranscriptionPage() {
     };
 
     recognition.start();
+  };
+
+  const stopRecording = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
   };
 
   const handleSearch = () => {
@@ -54,6 +62,20 @@ export default function VideoTranscriptionPage() {
     setSelectedTimestamp(null);
   };
 
+  const saveTranscript = () => {
+    // Logic to save the transcript
+    const transcriptText = transcriptLines.map(line => `${line.timestamp}: ${line.text}`).join('\n');
+    const blob = new Blob([transcriptText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'transcript.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <>
       <div>
@@ -61,7 +83,9 @@ export default function VideoTranscriptionPage() {
       </div>
       <div>
         <button onClick={handleMicrophoneInput}>Record Audio</button>
+        <button onClick={stopRecording} style={{marginLeft: "20px"}}>Pause Recording</button>
         <button onClick={clearTranscript} style={{marginLeft: "20px"}}>Clear Transcript</button>
+        <button onClick={saveTranscript} style={{marginLeft: "20px"}}>Save Transcript</button>
         <h2>Transcript:</h2>
         <div ref={transcriptRef} style={{backgroundColor: "white", color: "black", padding: "20px"}}>
           {transcriptLines.map((line, index) => (
@@ -85,7 +109,7 @@ export default function VideoTranscriptionPage() {
               <h3>Found Words:</h3>
               <div style={{backgroundColor: "white", color: "black", padding: "20px"}}>
               {foundWords.map((foundWord, index) => (
-                <p key={index} onClick={() => scrollToLine(foundWord.timestamp)} style={{cursor:'pointer'}}>
+                <p className="search" key={index} onClick={() => scrollToLine(foundWord.timestamp)} style={{cursor:'pointer'}}>
                   {foundWord.timestamp}: {foundWord.word}
                 </p>
               ))}
@@ -100,4 +124,3 @@ export default function VideoTranscriptionPage() {
     </>
   );
 }
-
