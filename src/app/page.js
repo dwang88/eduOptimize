@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 
 export default function VideoTranscriptionPage() {
   const [transcriptLines, setTranscriptLines] = useState([]);
@@ -47,21 +47,32 @@ export default function VideoTranscriptionPage() {
     }
   };
 
+  const clearTranscript = () => {
+    setTranscriptLines([]);
+    setTranscriptWords([]);
+    setFoundWords([]);
+    setSelectedTimestamp(null);
+  };
+
   return (
     <>
       <div>
         <h1 style={{textAlign: "center"}}>Real Time Audio Input To Text</h1>
       </div>
       <div>
-        <button onClick={handleMicrophoneInput}>Record</button>
+        <button onClick={handleMicrophoneInput}>Record Audio</button>
+        <button onClick={clearTranscript} style={{marginLeft: "20px"}}>Clear Transcript</button>
         <h2>Transcript:</h2>
-        <div ref={transcriptRef}>
+        <div ref={transcriptRef} style={{backgroundColor: "white", color: "black", padding: "20px"}}>
           {transcriptLines.map((line, index) => (
             <div key={index} className={line.timestamp === selectedTimestamp ? "highlighted-line" : ""}>
               <span>{line.timestamp}: </span>
               <span>{line.text}</span>
             </div>
           ))}
+        {transcriptWords.length === 0 && (
+            <p>Start recording for transcript.</p>
+          )}
         </div>
         <h2>Search Transcript:</h2>
         <div>
@@ -72,18 +83,21 @@ export default function VideoTranscriptionPage() {
           {foundWords.length > 0 && (
             <div>
               <h3>Found Words:</h3>
+              <div style={{backgroundColor: "white", color: "black", padding: "20px"}}>
               {foundWords.map((foundWord, index) => (
                 <p key={index} onClick={() => scrollToLine(foundWord.timestamp)} style={{cursor:'pointer'}}>
                   {foundWord.timestamp}: {foundWord.word}
                 </p>
               ))}
+              </div>
             </div>
           )}
           {foundWords.length === 0 && (
-            <p>No matching words found.</p>
+            <p style={{backgroundColor: "white", color: "black", padding: "20px"}}>No matching words found.</p>
           )}
         </div>
       </div>
     </>
   );
 }
+
