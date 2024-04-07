@@ -1,12 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono&display=swap');
-
-body {
-  font-family: 'Space Mono', monospace;
-}
-
 body {
   padding: 20px;
-  background-color: #f7f7f7;
+  background-color: #f7f7f7
 }
 
 .container {
@@ -16,6 +10,8 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Space Mono', monospace;
+
 }
 
 .upload-area {
@@ -62,7 +58,6 @@ button {
   background-color: #4CAF50;
   color: white;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
 }
@@ -73,4 +68,12 @@ button:hover {
 
 button:active {
   background-color: #3e8e41;
+}
+
+input {
+  padding: 10px 20px;
+  border-color: darkgray;
+  margin-right: 10px;
+  cursor: pointer;
+  font-size: 16px;
 }
