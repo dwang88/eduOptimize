@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
 body {
   padding: 20px;
-  background-color: #f7f7f7
+  background-color: #f7f7f7;
+  font-family: 'Space Mono', monospace;
 }
 
 .container {
@@ -60,6 +63,7 @@ button {
   border: none;
   cursor: pointer;
   font-size: 16px;
+  font-family: 'Space Mono', monospace;
 }
 
 button:hover {
@@ -76,4 +80,5 @@ input {
   margin-right: 10px;
   cursor: pointer;
   font-size: 16px;
+  font-family: 'Space Mono', monospace;
 }

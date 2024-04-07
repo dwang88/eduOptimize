@@ -12,21 +12,25 @@ export default function VideoTranscriptionPage() {
     const recognition = new window.webkitSpeechRecognition();
 
     recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = false;
 
     recognition.onresult = (event) => {
-      const newTranscript = event.results[0][0].transcript;
-      const timestamp = new Date().toLocaleTimeString(); // Get current timestamp
-      const newLine = { text: newTranscript, timestamp: timestamp };
-      setTranscriptLines(prevLines => [...prevLines, newLine]);
-      const words = newTranscript.split(' '); // Split transcript into words
-      setTranscriptWords(prevWords => [...prevWords, ...words]); // Add words to transcriptWords array
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const newTranscript = event.results[i][0].transcript;
+        const timestamp = new Date().toLocaleTimeString(); // Get current timestamp
+        const newLine = { text: newTranscript, timestamp: timestamp };
+        setTranscriptLines(prevLines => [...prevLines, newLine]);
+        const words = newTranscript.split(' ').map(word => ({ word, timestamp })); // Add timestamp to each word
+        setTranscriptWords(prevWords => [...prevWords, ...words]); // Add words to transcriptWords array
+      }
     };
 
     recognition.start();
   };
 
   const handleSearch = () => {
-    const found = transcriptWords.filter(word => word.toLowerCase() === searchWord.toLowerCase());
+    const found = transcriptWords.filter(wordObj => wordObj.word.toLowerCase() === searchWord.toLowerCase());
     setFoundWords(found);
   };
 
@@ -46,19 +50,19 @@ export default function VideoTranscriptionPage() {
             </div>
           ))}
         </div>
-        <h2>Words:</h2>
-        <div>
-          {transcriptWords.map((word, index) => (
-            <span key={index}>{word} </span>
-          ))}
-        </div>
+        <h2>Search Transcript:</h2>
         <div>
           <input type="text" value={searchWord} onChange={(e) => setSearchWord(e.target.value)} />
           <button onClick={handleSearch}>Search</button>
         </div>
         <div>
           {foundWords.length > 0 && (
-            <p>Found words: {foundWords.join(', ')}</p>
+            <div>
+              <h3>Found Words:</h3>
+              {foundWords.map((foundWord, index) => (
+                <p key={index}>{foundWord.timestamp}: {foundWord.word}</p>
+              ))}
+            </div>
           )}
           {foundWords.length === 0 && (
             <p>No matching words found.</p>
@@ -68,4 +72,3 @@ export default function VideoTranscriptionPage() {
     </>
   );
 }
-
