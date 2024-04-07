@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 export default function VideoTranscriptionPage() {
   const [transcriptLines, setTranscriptLines] = useState([]);
   const [transcriptWords, setTranscriptWords] = useState([]);
   const [searchWord, setSearchWord] = useState('');
   const [foundWords, setFoundWords] = useState([]);
+  const [selectedTimestamp, setSelectedTimestamp] = useState(null);
+  const transcriptRef = useRef(null);
 
   const handleMicrophoneInput = () => {
     const recognition = new window.webkitSpeechRecognition();
@@ -34,6 +36,17 @@ export default function VideoTranscriptionPage() {
     setFoundWords(found);
   };
 
+  const scrollToLine = (timestamp) => {
+    const lineIndex = transcriptLines.findIndex(line => line.timestamp === timestamp);
+    if (lineIndex !== -1) {
+      const lineElement = transcriptRef.current.children[lineIndex];
+      if (lineElement) {
+        setSelectedTimestamp(timestamp); // Highlight the selected line
+        lineElement.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
   return (
     <>
       <div>
@@ -42,9 +55,9 @@ export default function VideoTranscriptionPage() {
       <div>
         <button onClick={handleMicrophoneInput}>Record</button>
         <h2>Transcript:</h2>
-        <div>
+        <div ref={transcriptRef}>
           {transcriptLines.map((line, index) => (
-            <div key={index}>
+            <div key={index} className={line.timestamp === selectedTimestamp ? "highlighted-line" : ""}>
               <span>{line.timestamp}: </span>
               <span>{line.text}</span>
             </div>
@@ -60,7 +73,9 @@ export default function VideoTranscriptionPage() {
             <div>
               <h3>Found Words:</h3>
               {foundWords.map((foundWord, index) => (
-                <p key={index}>{foundWord.timestamp}: {foundWord.word}</p>
+                <p key={index} onClick={() => scrollToLine(foundWord.timestamp)} style={{cursor:'pointer'}}>
+                  {foundWord.timestamp}: {foundWord.word}
+                </p>
               ))}
             </div>
           )}
